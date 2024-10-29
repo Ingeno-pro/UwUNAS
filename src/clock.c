@@ -1,5 +1,4 @@
 void initClock(){
-	loadFontFile();
 	
 }
 void displayHour(){

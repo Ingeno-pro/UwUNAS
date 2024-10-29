@@ -21,8 +21,9 @@ void SSD1306InitScreen(){
 }
 void SSD1306CloseScreen(){
 	
-	for(char i = 0; i < COLUMNS ; i++){
-		free(screen_data[i])
+	char i = 0;
+	for(i = 0; i < COLUMNS ; i++){
+		free(screen_data[i]);
 	}
 	free(screen_data[i]);
 	
