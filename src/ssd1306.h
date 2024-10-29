@@ -23,6 +23,14 @@
 #define ENABLE_CHARGE_PUMP 0x14
 #define DISABLE_CHARGE_PUMP 0x10
 
+#define DISPLAY_CLOCK_DIVIDE_RATIO 0xD5
+#define OSCILLATOR_FRQ 0x80
+
+#define MULTIPLEX_RATIO 0xA8
+#define DISPLAY_HEIGHT 0x3F
+
+#define SET_DISPLAY_OFFSET 0xD3
+
 #define SET_COLUMN 0x21
 #define SET_PAGE 0x22
 
@@ -42,4 +50,5 @@ void SSD1306TurnOffChargePump();
 void SSD1306SetPage(char page);
 void SSD1306SetColumn(char column);
 
+char **getScreenBuff();
 #endif

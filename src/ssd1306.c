@@ -1,23 +1,40 @@
 #include "ssd1306.h"
+#include <stdio.h>
+#include <math.h> 
 
-char **screen_data;
+char **screen_data=NULL;
 
 void SSD1306InitScreen(){
 	
+	
 	SSD1306SendSingleCommand(TURN_OFF_SCREEN);
+	
+	//Clock frequency
+	SSD1306SendSingleCommand(DISPLAY_CLOCK_DIVIDE_RATIO);
+	SSD1306SendSingleCommand(OSCILLATOR_FRQ);
+	
+	//Give display size to SSD1306
+	SSD1306SendSingleCommand(MULTIPLEX_RATIO); 
+	SSD1306SendSingleCommand(DISPLAY_HEIGHT); //Display height from 0 
+	
+	//Set display offset 0
+	SSD1306SendSingleCommand(SET_DISPLAY_OFFSET); 
+	SSD1306SendSingleCommand(0x00); 
+	
 	//Set addressing mode 
 	SSD1306SendSingleCommand(HORIZONTAL_ADDRESSING_MODE);
 	
-	SSD1306TurnOnChargePump();
-	SSD1306SendSingleCommand(TURN_ON_SCREEN);
 	
 	screen_data = (char **)malloc(sizeof(char *) * COLUMNS);
 	for(char i = 0; i < COLUMNS ; i++){
 		screen_data[i] = (char *)malloc(sizeof(char) * PAGES);
 	}
-	
 	//Blank screen
 	SSD1306ClearScreen();
+	
+	SSD1306TurnOnChargePump();
+	SSD1306SendSingleCommand(TURN_ON_SCREEN);
+	
 }
 void SSD1306CloseScreen(){
 	
@@ -85,13 +102,18 @@ void SSD1306ClearScreen(){
 }
 void SSD1306DrawSinglePixel(char x, char y){
 	
+	if(x >= SCREEN_WIDTH || y >=SCREEN_HEIGHT){
+		exit(0);
+	}
 	char page = y/(SCREEN_HEIGHT/PAGES);
 	char pixelmask = y%(SCREEN_HEIGHT/PAGES);
+	pixelmask = pow(2, (2*pixelmask));
 	
 	SSD1306SetPage(page);
 	SSD1306SetColumn(x);
+	screen_data[x][page] |= pixelmask;
 	
-	SSD1306SendSingleData(screen_data[x][page] |= pixelmask);
+	SSD1306SendSingleData(screen_data[x][page]);
 	
 }
 void SSD1306BlitScreen(){
@@ -104,4 +126,8 @@ void SSD1306BlitScreen(){
 		}
 	}
 	
+}
+
+char **getScreenBuff(){
+	return screen_data;
 }

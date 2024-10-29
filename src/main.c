@@ -1,5 +1,9 @@
+#include <bcm2835.h>
+
+#include "ssd1306.h"
 #include "diskmanager.h"
 #include "http.h"
+#include "clock.h"
 #include "nas.h"
 
 #define PORT 4255
@@ -12,10 +16,15 @@ int main(){
 	
 	//Initialisation de l'écran LCD
 	bcm2835_i2c_begin();
+	bcm2835_i2c_set_baudrate(BAUD_RATE);
+	
 	SSD1306InitScreen();
+	SSD1306DrawSinglePixel(127, 31);
+	drawBigChar('c', 0, 0);
+	SSD1306BlitScreen();
 	
 	listUUID();
-	printf("%d o\n", getDiskSize("sdb"));
+	//printf("%d o\n", getDiskSize("sdb"));
 	//Création du socket
 	fprintf(stdout, "UWU CREATE\n");
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
