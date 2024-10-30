@@ -12,6 +12,7 @@
 int main(){
 
 	initNAS();
+	initClock();
 	if (!bcm2835_init()) return 1;
 	
 	//Initialisation de l'écran LCD
@@ -20,7 +21,7 @@ int main(){
 	
 	SSD1306InitScreen();
 	SSD1306DrawSinglePixel(127, 31);
-	drawBigChar('c', 0, 0);
+	//drawChar('c', 0, 0, 0);
 	SSD1306BlitScreen();
 	
 	listUUID();

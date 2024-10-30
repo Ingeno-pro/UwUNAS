@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "ssd1306.h"
 
@@ -7,7 +8,7 @@
 #define __UWUCLOCK_H__
 
 
-#define LITTLE_CHAR_SIZE 8
+#define SMALL_CHAR_SIZE 8
 #define MEDIUM_CHAR_SIZE 16
 #define BIG_CHAR_SIZE 24
 
@@ -18,7 +19,6 @@
 #define N_ASCII_CHAR 128
 
 void initClock();
-void drawChar(char id, char x, char y, char size);
 
 
 #endif

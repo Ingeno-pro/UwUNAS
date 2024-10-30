@@ -13,7 +13,7 @@ int initNAS(void){
 		fprintf(stderr, "CREATING ONE UWU...\n");
 		diskCfg = fopen("config/disk.cfg", "w");
 	}	
-
+	
 	fclose(diskCfg);
 
 }
