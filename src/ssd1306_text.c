@@ -115,7 +115,7 @@ void loadSmallChar(){
 	
 	int sy, sx;
 	for(int id = 0; id < N_ASCII_CHAR; id++){
-		sy = id / (SPRITE_TABLE_SIZE/(SMALL_CHAR_SIZE/2));
+		sy = (id / (SPRITE_TABLE_SIZE/(SMALL_CHAR_SIZE/2)))*8;
 		sx = (id % (SPRITE_TABLE_SIZE/(SMALL_CHAR_SIZE/2)))*4;
 		for(int y = sy; y < sy + SMALL_CHAR_SIZE; y++){
 			for(int x = sx; x < sx + SMALL_CHAR_SIZE/2; x++){
@@ -170,8 +170,11 @@ void drawSmallCharFromID(char id, char x, char y){
 		}
 	}
 }
-void drawSmallString(char x, char y, char *c, ...){
+void drawSmallString(char x, char y, char *str){
 	
+	for(int i = 0; i < strlen(str); i++){
+		drawSmallCharFromID((int)str[i] - 32, x + i*(SMALL_CHAR_SIZE/2), y);
+	}
 	
 }
 

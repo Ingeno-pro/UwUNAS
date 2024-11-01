@@ -6,17 +6,13 @@ void initClock(){
 }
 void displayHour(){
 	
+	char hour[6];
+	
 	time_t timestamp = time(NULL);
 	struct tm * timeInfos = localtime( &timestamp );
 	
-	//timeInfos->tm_hour;
-	//timeInfos->tm_min;
-	drawSmallChar(0, 0, 0, 0);
-	drawSmallChar(4, 0, 4, 0);
-	drawSmallChar(12, 8, 8, 0);
-	drawSmallChar(12, 0, 12, 0);
-	drawSmallChar(0, 8, 16, 0);
-	drawSmallCharFromID(10, 12, 16);
+	sprintf(hour, "%d:%d", timeInfos->tm_hour, timeInfos->tm_min);
+	drawSmallString(0, 0, hour);
 }
 
 

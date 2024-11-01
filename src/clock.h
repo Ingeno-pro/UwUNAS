@@ -9,7 +9,7 @@
 #ifndef __UWUCLOCK_H__
 #define __UWUCLOCK_H__
 
-
+void displayHour();
 void initClock();
 
 
