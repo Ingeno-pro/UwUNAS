@@ -1,18 +1,27 @@
 #include "ssd1306_text.h"
 char **smallChar;
+char ***smallCharFromID;
 char **mediumChar;
 char **bigChar;
 
 void createCharTable(){
 	
-	char j;
+	char j, i;
 	
 	//Allocate memory
 	smallChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
+	smallCharFromID = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
 	
 	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
 		smallChar[j] = (char *)malloc(sizeof(char) * SPRITE_TABLE_SIZE);
 	}
+	for(j = 0 ; j < N_ASCII_CHAR ; j++){
+		smallCharFromID[j] = (char **)malloc(sizeof(char *) * SMALL_CHAR_SIZE);
+		for(i = 0 ; i < SMALL_CHAR_SIZE; i++){
+			smallCharFromID[j][i] = (char *)malloc(sizeof(char) * (SMALL_CHAR_SIZE/2));
+		}
+	}
+	
 	
 	mediumChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
 	
@@ -27,11 +36,13 @@ void createCharTable(){
 	}
 	
 }
+
 void SSD1306InitText(){
 	
+	fprintf(stderr, "SSD1306 text init");
 	createCharTable();
 	loadSmallChar();
-	
+	fprintf(stderr, "SSD1306 initialised succesfully");
 }
 void SSD1306CloseText(){
 	
@@ -102,6 +113,16 @@ void loadSmallChar(){
 		}
 	}
 	
+	int sy, sx;
+	for(int id = 0; id < N_ASCII_CHAR; id++){
+		sy = id / (SPRITE_TABLE_SIZE/(SMALL_CHAR_SIZE/2));
+		sx = (id % (SPRITE_TABLE_SIZE/(SMALL_CHAR_SIZE/2)))*4;
+		for(int y = sy; y < sy + SMALL_CHAR_SIZE; y++){
+			for(int x = sx; x < sx + SMALL_CHAR_SIZE/2; x++){
+				smallCharFromID[id][y-sy][x-sx] = smallChar[y][x];
+			}
+		}
+	}
 	
 	
     png_destroy_read_struct(&png, &info, NULL);
@@ -129,7 +150,28 @@ void drawSmallChar(char cx, char cy, char x, char y){
 		}
 	}
 }
+void drawSmallCharFromID(char id, char x, char y){
+	
+	char **screen_buff = getScreenBuff();
+	char page, pixelmask;
+	
+	for(char i = 0; i < SMALL_CHAR_SIZE; i++){
+		for(char j = 0; j < SMALL_CHAR_SIZE/2; j++){
+			if((i + y) >= SCREEN_HEIGHT || (j + x) >= SCREEN_WIDTH){
+				exit(0);
+			}
+			if(smallCharFromID[id][i][j]){
+				char page = (i + y)/(SCREEN_HEIGHT/PAGES);
+				char pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
+				pixelmask = pow(2, (2*pixelmask));
+
+				screen_buff[(j + x)][page] |= pixelmask;		
+			}
+		}
+	}
+}
 void drawSmallString(char x, char y, char *c, ...){
 	
 	
 }
+

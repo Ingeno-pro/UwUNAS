@@ -23,6 +23,7 @@ void SSD1306InitText();
 void createCharTable();
 void destroyCharTable();
 void drawSmallChar(char cx, char cy, char x, char y);
+void drawSmallCharFromID(char id, char x, char y);
 void drawSmallString(char x, char y, char *c, ...);
 void loadSmallChar();
 

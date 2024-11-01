@@ -16,6 +16,7 @@ void displayHour(){
 	drawSmallChar(12, 8, 8, 0);
 	drawSmallChar(12, 0, 12, 0);
 	drawSmallChar(0, 8, 16, 0);
+	drawSmallCharFromID(10, 12, 16);
 }
 
 
