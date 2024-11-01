@@ -1,35 +1,29 @@
 #include "ssd1306_text.h"
-char ****asciiChar=NULL;
+char **smallChar;
+char **mediumChar;
+char **bigChar;
 
 void createCharTable(){
 	
-	char j, k, i;
+	char j;
 	
 	//Allocate memory
-	asciiChar = (char ****)malloc(sizeof(char ***) * 3);
-	for(i = 0 ; i < 3 ; i++){
-		asciiChar[i] = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
+	smallChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
+	
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		smallChar[j] = (char *)malloc(sizeof(char) * SPRITE_TABLE_SIZE);
 	}
 	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[0][j] = (char **)malloc(sizeof(char *) * SMALL_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[0][j][k] = (char *)malloc(sizeof(char) * SMALL_CHAR_SIZE/2);
-		}
+	mediumChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
+	
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		mediumChar[j] = (char *)malloc(sizeof(char) * SPRITE_TABLE_SIZE);
 	}
 	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[1][j] = (char **)malloc(sizeof(char *) * MEDIUM_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[1][j][k] = (char *)malloc(sizeof(char) * MEDIUM_CHAR_SIZE/2);
-		}
-	}
+	bigChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
 	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[2][j] = (char **)malloc(sizeof(char *) * BIG_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[2][j][k] = (char *)malloc(sizeof(char) * BIG_CHAR_SIZE/2);
-		}
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		bigChar[j] = (char *)malloc(sizeof(char) * SPRITE_TABLE_SIZE);
 	}
 	
 }
@@ -39,39 +33,30 @@ void SSD1306InitText(){
 	loadSmallChar();
 	
 }
+void SSD1306CloseText(){
+	
+	destroyCharTable();
+	
+}
 void destroyCharTable(){
 	
 	char j, k, i;
 	
 	//Desallocate memory ( to do )
-	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[0][j] = (char **)malloc(sizeof(char *) * SMALL_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[0][j][k] = (char *)malloc(sizeof(char) * SMALL_CHAR_SIZE/2);
-		}
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		free(smallChar[j]); 
 	}
+	free(smallChar);
 	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[1][j] = (char **)malloc(sizeof(char *) * MEDIUM_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[1][j][k] = (char *)malloc(sizeof(char) * MEDIUM_CHAR_SIZE/2);
-		}
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		free(mediumChar[j]); 
 	}
+	free(mediumChar);
 	
-	for(j = 0 ; j < N_ASCII_CHAR ; j++){
-		asciiChar[2][j] = (char **)malloc(sizeof(char *) * BIG_CHAR_SIZE);
-		for(k = 0 ; k < N_ASCII_CHAR ; k++){
-			asciiChar[2][j][k] = (char *)malloc(sizeof(char) * BIG_CHAR_SIZE/2);
-		}
+	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
+		free(bigChar[j]); 
 	}
-	
-	
-	for(i = 0 ; i < 3 ; i++){
-		asciiChar[i] = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
-	}
-	
-	asciiChar = (char ****)malloc(sizeof(char ***) * 3);
+	free(bigChar);
 }
 
 void loadSmallChar(){
@@ -107,36 +92,34 @@ void loadSmallChar(){
 	
 	png_read_image(png, row_pointers);
 
-   
+	for(int y = 0; y < height; y++){
+ 		for(int x = 0; x < width; x++){
+			if(!row_pointers[y][x*3 + 0] && !row_pointers[y][x*3 + 1] && !row_pointers[y][x*3 + 2]){
+				smallChar[y][x] = 1;
+			}else{
+				smallChar[y][x] = 0;
+			}
+		}
+	}
+	
+	
+	
     png_destroy_read_struct(&png, &info, NULL);
     fclose(f);
 
 	
 }
-void drawChar(char id, char x, char y, char size){
+void drawSmallChar(char cx, char cy, char x, char y){
 	
 	char **screen_buff = getScreenBuff();
 	char page, pixelmask;
-	char letter_size;
 	
-	switch(size){
-		case 0:
-			letter_size = SMALL_CHAR_SIZE;
-		break;
-		case 1:
-			letter_size = MEDIUM_CHAR_SIZE;
-		break;
-		case 2:
-			letter_size = BIG_CHAR_SIZE;
-		break;
-	}
-	
-	for(char i = 0; i < letter_size; i++){
-		for(char j = 0; j < letter_size; j++){
+	for(char i = 0; i < SMALL_CHAR_SIZE; i++){
+		for(char j = 0; j < SMALL_CHAR_SIZE/2; j++){
 			if((i + y) >= SCREEN_HEIGHT || (j + x) >= SCREEN_WIDTH){
 				exit(0);
 			}
-			if(asciiChar[size][id][i][j]){
+			if(smallChar[cy + i][cx + j]){
 				char page = (i + y)/(SCREEN_HEIGHT/PAGES);
 				char pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
 				pixelmask = pow(2, (2*pixelmask));
@@ -145,4 +128,8 @@ void drawChar(char id, char x, char y, char size){
 			}
 		}
 	}
+}
+void drawSmallString(char x, char y, char *c, ...){
+	
+	
 }

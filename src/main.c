@@ -1,6 +1,7 @@
 #include <bcm2835.h>
 
 #include "ssd1306.h"
+#include "ssd1306_text.h"
 #include "diskmanager.h"
 #include "http.h"
 #include "clock.h"
@@ -20,8 +21,8 @@ int main(){
 	bcm2835_i2c_set_baudrate(BAUD_RATE);
 	
 	SSD1306InitScreen();
-	SSD1306DrawSinglePixel(127, 31);
-	//drawChar('c', 0, 0, 0);
+	SSD1306InitText();
+	displayHour();
 	SSD1306BlitScreen();
 	
 	listUUID();

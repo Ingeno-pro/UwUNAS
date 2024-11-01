@@ -1,5 +1,5 @@
-uwunas : main.o nas.o clock.o http.o diskmanager.o ssd1306.o
-	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o ssd1306.o -lbcm2835 -lblkid -lm -lpng
+uwunas : main.o nas.o clock.o http.o diskmanager.o ssd1306.o ssd1306_text.o
+	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o ssd1306.o ssd1306_text.o -lbcm2835 -lblkid -lm -lpng
 
 main.o : src/main.c 
 	gcc -c src/main.c -o main.o -lbcm2835 -lblkid -lm 
