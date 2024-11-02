@@ -137,15 +137,18 @@ void drawSmallChar(char cx, char cy, char x, char y){
 	
 	for(char i = 0; i < SMALL_CHAR_SIZE; i++){
 		for(char j = 0; j < SMALL_CHAR_SIZE/2; j++){
+			
+			page = (i + y)/(SCREEN_HEIGHT/PAGES);
+			pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
+			pixelmask = pow(2, (2*pixelmask));
+			
 			if((i + y) >= SCREEN_HEIGHT || (j + x) >= SCREEN_WIDTH){
 				exit(0);
 			}
 			if(smallChar[cy + i][cx + j]){
-				char page = (i + y)/(SCREEN_HEIGHT/PAGES);
-				char pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
-				pixelmask = pow(2, (2*pixelmask));
-
 				screen_buff[(j + x)][page] |= pixelmask;		
+			}else{
+				screen_buff[(j + x)][page] &= ~pixelmask;
 			}
 		}
 	}
@@ -157,15 +160,18 @@ void drawSmallCharFromID(char id, char x, char y){
 	
 	for(char i = 0; i < SMALL_CHAR_SIZE; i++){
 		for(char j = 0; j < SMALL_CHAR_SIZE/2; j++){
+			
+			page = (i + y)/(SCREEN_HEIGHT/PAGES);
+			pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
+			pixelmask = pow(2, (2*pixelmask));
+			
 			if((i + y) >= SCREEN_HEIGHT || (j + x) >= SCREEN_WIDTH){
 				exit(0);
 			}
 			if(smallCharFromID[id][i][j]){
-				char page = (i + y)/(SCREEN_HEIGHT/PAGES);
-				char pixelmask = (i + y)%(SCREEN_HEIGHT/PAGES);
-				pixelmask = pow(2, (2*pixelmask));
-
 				screen_buff[(j + x)][page] |= pixelmask;		
+			}else{
+				screen_buff[(j + x)][page] &= ~pixelmask;
 			}
 		}
 	}
@@ -173,7 +179,7 @@ void drawSmallCharFromID(char id, char x, char y){
 void drawSmallString(char x, char y, char *str){
 	
 	for(int i = 0; i < strlen(str); i++){
-		drawSmallCharFromID((int)str[i] - 32, x + i*(SMALL_CHAR_SIZE/2), y);
+		drawSmallCharFromID((int)str[i] - ASCII_TABLE_OFFSET, x + i*(SMALL_CHAR_SIZE/2), y);
 	}
 	
 }

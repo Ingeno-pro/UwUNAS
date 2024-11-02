@@ -19,6 +19,7 @@
 
 #define N_ASCII_CHAR 128
 #define SPRITE_TABLE_SIZE 64
+#define ASCII_TABLE_OFFSET 32
 
 void SSD1306InitText();
 void createCharTable();

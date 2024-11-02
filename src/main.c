@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <bcm2835.h>
 
 #include "ssd1306.h"
@@ -10,8 +11,18 @@
 #define PORT 4255
 #define IP 4
 
-int main(){
+void *screen_thread_(void *arg) {
 
+	while(1){
+		displayHour();
+		SSD1306BlitScreen();
+	}
+	pthread_exit(EXIT_SUCCESS);
+}
+
+
+int main(){
+	
 	initNAS();
 	initClock();
 	if (!bcm2835_init()) return 1;
@@ -22,8 +33,9 @@ int main(){
 	
 	SSD1306InitScreen();
 	SSD1306InitText();
-	displayHour();
-	SSD1306BlitScreen();
+	
+	pthread_t screen_thread;
+	pthread_create(&screen_thread, NULL, screen_thread_, NULL);
 	
 	listUUID();
 	//printf("%d o\n", getDiskSize("sdb"));
@@ -78,6 +90,7 @@ int main(){
 			manageRequest(clientSocket, buff, sizeof(buff));
 		}
 	}
+	pthread_join(screen_thread, NULL);
 	close(clientSocket);
 	close(serverSocket);
 	bcm2835_close();
