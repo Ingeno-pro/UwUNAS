@@ -22,7 +22,7 @@ void createCharTable(){
 		}
 	}
 	
-	
+	//To do ??
 	mediumChar = (char **)malloc(sizeof(char *) * SPRITE_TABLE_SIZE);
 	
 	for(j = 0 ; j < SPRITE_TABLE_SIZE ; j++){
