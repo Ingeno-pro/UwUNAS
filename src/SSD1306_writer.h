@@ -31,9 +31,9 @@
 typedef struct SSD1306Writer{
 	
 	SSD1306 *screen;
-	char ***smallCharTable;
-	char ***mediumCharTable;
-	char ***largeCharTable;
+	char ***sct;
+	char ***mct;
+	char ***lct;
 	
 }SSD1306Writer;
 
@@ -41,6 +41,8 @@ void SSD1306Writer_init(SSD1306Writer *sw, SSD1306 *screen);
 void SSD1306Writer_destroy(SSD1306Writer *sw);
 
 /******************************** hidden function ***************************************/
+
+void _SSD1306Writer_alloc_char_table(char ****ct, char cwidth, char cheight);
 
 void _SSD1306Writer_alloc_small_char_table(SSD1306Writer *sw);
 void _SSD1306Writer_alloc_medium_char_table(SSD1306Writer *sw);
@@ -50,6 +52,8 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw);
 void _SSD1306Writer_load_medium_char_table(SSD1306Writer *sw);
 void _SSD1306Writer_load_large_char_table(SSD1306Writer *sw);
 
+void _SSD1306Writer_free_char_table(char ***ct, char cheight);
+	
 void _SSD1306Writer_free_small_char_table(SSD1306Writer *sw);
 void _SSD1306Writer_free_medium_char_table(SSD1306Writer *sw);
 void _SSD1306Writer_free_large_char_table(SSD1306Writer *sw);

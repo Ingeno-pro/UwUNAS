@@ -9,7 +9,7 @@ void SSD1306Writer_init(SSD1306Writer *sw, SSD1306 *screen){
 	_SSD1306Writer_alloc_small_char_table(sw);
 	_SSD1306Writer_alloc_medium_char_table(sw);
 	_SSD1306Writer_alloc_large_char_table(sw);
-		
+
 	//Load char tables
 	_SSD1306Writer_load_small_char_table(sw);
 	//_SSD1306Writer_load_medium_char_table(sw);
@@ -27,48 +27,38 @@ void SSD1306Writer_destroy(SSD1306Writer *sw){
 	_SSD1306Writer_free_medium_char_table(sw);
 	_SSD1306Writer_free_large_char_table(sw);
 	
-	
 }
 
 /******************************** hidden function ***************************************/
 
+void _SSD1306Writer_alloc_char_table(char ****ct, char cwidth, char cheight){
+	
+	//Allocate memory for char table
+	*ct = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
+	
+	for(int j = 0 ; j < N_ASCII_CHAR ; j++){
+		(*ct)[j] = (char **)malloc(sizeof(char *) * cheight);
+		for(int i = 0 ; i < cheight; i++){
+			(*ct)[j][i] = (char *)malloc(sizeof(char) * cwidth);
+		}
+	}
+}
 void _SSD1306Writer_alloc_small_char_table(SSD1306Writer *sw){
 	
 	//Allocate memory for small char table
-	sw->smallCharTable = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
-	
-	for(unsigned char j = 0 ; j < N_ASCII_CHAR ; j++){
-		sw->smallCharTable[j] = (char **)malloc(sizeof(char *) * SMALL_CHAR_HEIGHT);
-		for(unsigned char i = 0 ; i < SMALL_CHAR_HEIGHT; i++){
-			sw->smallCharTable[j][i] = (char *)malloc(sizeof(char) * SMALL_CHAR_WIDTH);
-		}
-	}
+	_SSD1306Writer_alloc_char_table(&sw->sct, SMALL_CHAR_WIDTH, SMALL_CHAR_HEIGHT);
 	
 }
 void _SSD1306Writer_alloc_medium_char_table(SSD1306Writer *sw){
 	
 	//Allocate memory for medium char table
-	sw->mediumCharTable = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
-	
-	for(unsigned char j = 0 ; j < N_ASCII_CHAR ; j++){
-		sw->mediumCharTable[j] = (char **)malloc(sizeof(char *) * MEDIUM_CHAR_HEIGHT);
-		for(unsigned char i = 0 ; i < MEDIUM_CHAR_HEIGHT; i++){
-			sw->mediumCharTable[j][i] = (char *)malloc(sizeof(char) * MEDIUM_CHAR_WIDTH);
-		}
-	}
-	
+	_SSD1306Writer_alloc_char_table(&sw->mct, MEDIUM_CHAR_WIDTH, MEDIUM_CHAR_HEIGHT);
+
 }
 void _SSD1306Writer_alloc_large_char_table(SSD1306Writer *sw){
 	
 	//Allocate memory for large char table
-	sw->largeCharTable = (char ***)malloc(sizeof(char **) * N_ASCII_CHAR);
-	
-	for(unsigned char j = 0 ; j < N_ASCII_CHAR ; j++){
-		sw->largeCharTable[j] = (char **)malloc(sizeof(char *) * LARGE_CHAR_HEIGHT);
-		for(unsigned char i = 0 ; i < LARGE_CHAR_HEIGHT; i++){
-			sw->largeCharTable[j][i] = (char *)malloc(sizeof(char) * LARGE_CHAR_WIDTH);
-		}
-	}
+	_SSD1306Writer_alloc_char_table(&sw->lct, LARGE_CHAR_WIDTH, LARGE_CHAR_HEIGHT);
 	
 }
 void _read_char_sheet(png_byte **row_pointers, char **sheet, int width, int height){
@@ -120,7 +110,7 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw){
 	for(int y = 0; y < height; y++) {
 		sheet[y] = (char *)malloc(sizeof(char ) * width);
 	}
-	
+
 	png_read_image(png, row_pointers);
 	_read_char_sheet(row_pointers, sheet, width, height);
 	
@@ -130,7 +120,8 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw){
 		sourcex = (id % (SMALL_CHAR_SPRITE_SHEET_SIZE/SMALL_CHAR_WIDTH))*SMALL_CHAR_WIDTH;
 		for(int y = sourcey; y < sourcey + SMALL_CHAR_HEIGHT; y++){
 			for(int x = sourcex; x < sourcex + SMALL_CHAR_WIDTH; x++){
-				sw->smallCharTable[id][y-sourcey][x-sourcex] = sheet[y][x];
+				fprintf(stderr, "%d, %d, %d,  %d, %d \n", id, y, x, sourcey, sourcex);
+				sw->sct[id][y-sourcey][x-sourcex] = sheet[y][x];
 			}
 		}
 	}
@@ -138,44 +129,34 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw){
 	png_destroy_read_struct(&png, &info, NULL);
     fclose(f);
 }
-
+void _SSD1306Writer_free_char_table(char ***ct, char cheight){
+	
+	//Desallocate memory for small char table
+	for(int j = 0 ; j < N_ASCII_CHAR ; j++){
+		for(int i = 0 ; i < cheight; i++){
+			free(ct[j][i]);
+		}
+		free(ct[j]);
+	}
+	
+	free(ct);
+}
 void _SSD1306Writer_free_small_char_table(SSD1306Writer *sw){
 	
 	//Desallocate memory for small char table
-	for(char j = 0 ; j < N_ASCII_CHAR ; j++){
-		for(char i = 0 ; i < SMALL_CHAR_HEIGHT; i++){
-			free(sw->smallCharTable[j][i]);
-		}
-		free(sw->smallCharTable[j]);
-	}
-	
-	free(sw->smallCharTable);
+	_SSD1306Writer_free_char_table(sw->sct, SMALL_CHAR_HEIGHT);
 	
 }
 void _SSD1306Writer_free_medium_char_table(SSD1306Writer *sw){
 	
 	//Desallocate memory for small char table
-	for(char j = 0 ; j < N_ASCII_CHAR ; j++){
-		for(char i = 0 ; i < MEDIUM_CHAR_HEIGHT; i++){
-			free(sw->mediumCharTable[j][i]);
-		}
-		free(sw->mediumCharTable[j]);
-	}
-	
-	free(sw->mediumCharTable);
+	_SSD1306Writer_free_char_table(sw->mct, MEDIUM_CHAR_HEIGHT);
 	
 }
 void _SSD1306Writer_free_large_char_table(SSD1306Writer *sw){
 	
 	//Desallocate memory for small char table
-	for(char j = 0 ; j < N_ASCII_CHAR ; j++){
-		for(char i = 0 ; i < LARGE_CHAR_HEIGHT; i++){
-			free(sw->largeCharTable[j][i]);
-		}
-		free(sw->largeCharTable[j]);
-	}
-	
-	free(sw->largeCharTable);
+	_SSD1306Writer_free_char_table(sw->lct, LARGE_CHAR_HEIGHT);
 	
 }
 
@@ -190,7 +171,7 @@ void SSD1306Writer_draw_small_char(SSD1306Writer *sw, char id, char x, char y){
 			
 	for(char i = 0; i < SMALL_CHAR_HEIGHT; i++){
 		for(char j = 0; j < SMALL_CHAR_WIDTH; j++){
-			(sw->smallCharTable[id][i][j]) ? SSD1306_draw_pixel(sw->screen, x+j, y+i) : SSD1306_erease_pixel(sw->screen, x+j, y+i);
+			(sw->sct[id][i][j]) ? SSD1306_draw_pixel(sw->screen, x+j, y+i) : SSD1306_erease_pixel(sw->screen, x+j, y+i);
 		}
 	}
 	
