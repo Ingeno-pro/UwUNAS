@@ -35,6 +35,9 @@ typedef struct SSD1306Writer{
 	char ***mct;
 	char ***lct;
 	
+	void (*draw_small_char)(struct SSD1306Writer *sw, char id, char x, char y);
+	void (*draw_small_string)(struct SSD1306Writer *sw, char x, char y, char *str);
+	
 }SSD1306Writer;
 
 void SSD1306Writer_init(SSD1306Writer *sw, SSD1306 *screen);

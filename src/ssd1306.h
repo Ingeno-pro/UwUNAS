@@ -39,6 +39,13 @@ typedef struct SSD1306{
 	unsigned char address;
 	char **screenBuffer;
 	
+	void (*blit)(struct SSD1306 *screen);
+	void (*clear)(struct SSD1306 *screen);
+	void (*draw_pixel)(struct SSD1306 *screen, char x, char y);
+	void (*erease_pixel)(struct SSD1306 *screen, char x, char y);
+	void (*turn_on_charge_pump)(struct SSD1306 *screen);
+	void (*turn_off_charge_pump)(struct SSD1306 *screen);
+	
 }SSD1306;
 
 void SSD1306_init(SSD1306 *screen, unsigned char addr);

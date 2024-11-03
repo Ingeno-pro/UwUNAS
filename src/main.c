@@ -34,11 +34,12 @@ int main(){
 	
 	SSD1306 screen;
 	SSD1306_init(&screen, SCREEN_ADDR);
-
+	
 	SSD1306Writer sw;
 	SSD1306Writer_init(&sw, &screen);
+	
 	displayHour(&sw);
-	SSD1306_blit(&screen);
+	screen.blit(&screen);
 	pthread_t screen_thread;
 	pthread_create(&screen_thread, NULL, screen_thread_, NULL);
 	

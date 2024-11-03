@@ -10,7 +10,13 @@ void SSD1306_init(SSD1306 *screen, unsigned char addr){
 
 	//Init screen structure
 	screen->address = addr;
-
+	screen->blit = &SSD1306_blit;
+	screen->clear = &SSD1306_clear_screen;
+	screen->draw_pixel = &SSD1306_draw_pixel;
+	screen->erease_pixel = &SSD1306_erease_pixel;
+	screen->turn_on_charge_pump = &SSD1306_turn_on_charge_pump;
+	screen->turn_off_charge_pump = &SSD1306_turn_off_charge_pump;
+	
 	//Turn off the screen 
 	_SSD1306_send_command(screen->address, TURN_OFF_SCREEN);
 	

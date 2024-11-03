@@ -4,6 +4,8 @@ void SSD1306Writer_init(SSD1306Writer *sw, SSD1306 *screen){
 	
 	//Init SSD1306Writer screen
 	sw->screen = screen;
+	sw->draw_small_char = &SSD1306Writer_draw_small_char;
+	sw->draw_small_string = &SSD1306Writer_draw_small_string;
 	
 	//Allocate memory to char tables
 	_SSD1306Writer_alloc_small_char_table(sw);
@@ -120,7 +122,6 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw){
 		sourcex = (id % (SMALL_CHAR_SPRITE_SHEET_SIZE/SMALL_CHAR_WIDTH))*SMALL_CHAR_WIDTH;
 		for(int y = sourcey; y < sourcey + SMALL_CHAR_HEIGHT; y++){
 			for(int x = sourcex; x < sourcex + SMALL_CHAR_WIDTH; x++){
-				fprintf(stderr, "%d, %d, %d,  %d, %d \n", id, y, x, sourcey, sourcex);
 				sw->sct[id][y-sourcey][x-sourcex] = sheet[y][x];
 			}
 		}
