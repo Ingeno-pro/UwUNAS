@@ -3,8 +3,8 @@
 #include <string.h>
 #include <math.h> 
 
-#include "ssd1306.h"
-#include "ssd1306_text.h"
+#include "SSD1306.h"
+#include "SSD1306_writer.h"
 
 #ifndef __UWUCLOCK_H__
 #define __UWUCLOCK_H__

@@ -1,27 +1,28 @@
 #include <pthread.h>
 #include <bcm2835.h>
 
-#include "ssd1306.h"
-#include "ssd1306_text.h"
+#include "SSD1306.h"
+#include "SSD1306_writer.h"
 #include "diskmanager.h"
 #include "http.h"
 #include "clock.h"
 #include "nas.h"
 
+#define SCREEN_ADDR 0x3C
 #define PORT 4255
 #define IP 4
 
 void *screen_thread_(void *arg) {
 
 	while(1){
-		displayHour();
-		SSD1306BlitScreen();
+		//displayHour();
 	}
 	pthread_exit(EXIT_SUCCESS);
 }
 
 
 int main(){
+	
 	
 	initNAS();
 	initClock();
@@ -31,9 +32,13 @@ int main(){
 	bcm2835_i2c_begin();
 	bcm2835_i2c_set_baudrate(BAUD_RATE);
 	
-	SSD1306InitScreen();
-	SSD1306InitText();
-	
+	SSD1306 screen;
+	SSD1306_init(&screen, SCREEN_ADDR);
+
+	SSD1306Writer sw;
+	SSD1306Writer_init(&sw, &screen);
+	displayHour(&sw);
+	SSD1306_blit(&screen);
 	pthread_t screen_thread;
 	pthread_create(&screen_thread, NULL, screen_thread_, NULL);
 	

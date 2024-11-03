@@ -1,12 +1,10 @@
 #include <bcm2835.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h> 
 
 #ifndef __SSD1306_H__
 #define __SSD1306_H__
-
-#ifndef SSD1306_ADDR
-#define SSD1306_ADDR 0x3C
-#endif
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
@@ -36,19 +34,32 @@
 
 #define HORIZONTAL_ADDRESSING_MODE 0x20
 
-void SSD1306InitScreen();
-void SSD1306ClearScreen();
-void SSD1306DrawSinglePixel(char x, char y);
-void SSD1306BlitScreen();
-void SSD1306CloseScreen();
+typedef struct SSD1306{
 	
-void SSD1306SendSingleCommand(char command);
-void SSD1306SendSingleData(char data);
-void SSD1306TurnOnChargePump();
-void SSD1306TurnOffChargePump();
+	unsigned char address;
+	char **screenBuffer;
+	
+}SSD1306;
 
-void SSD1306SetPage(char page);
-void SSD1306SetColumn(char column);
+void SSD1306_init(SSD1306 *screen, unsigned char addr);
+void SSD1306_destroy(SSD1306 *screen);
 
-char **getScreenBuff();
+/******************************** hidden function ***************************************/
+	
+void _SSD1306_send_command(unsigned char addr, char command);
+void _SSD1306_send_data(unsigned char addr, char data);
+void _SSD1306_set_page(unsigned char addr, char page);
+void _SSD1306_set_column(unsigned char addr, char column);
+
+/******************************** power function ***************************************/
+
+void SSD1306_turn_on_charge_pump(SSD1306 *screen);
+void SSD1306_turn_off_charge_pump(SSD1306 *screen);
+
+/******************************** graphical function ***************************************/
+
+void SSD1306_clear_screen(SSD1306 *screen);
+void SSD1306_draw_pixel(SSD1306 *screen, char x, char y);
+void SSD1306_erease_pixel(SSD1306 *screen, char x, char y);
+void SSD1306_blit(SSD1306 *screen);
 #endif

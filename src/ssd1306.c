@@ -1,133 +1,147 @@
-#include "ssd1306.h"
-#include <stdio.h>
-#include <math.h> 
+#include "SSD1306.h"
 
-char **screen_data=NULL;
+void SSD1306_init(SSD1306 *screen, unsigned char addr){
+	
+	//Allocate memory for the screen buffer
+	screen->screenBuffer = (char **)malloc(sizeof(char *) * COLUMNS);
+	for(int i = 0; i < COLUMNS ; i++){
+		screen->screenBuffer[i] = (char *)malloc(sizeof(char) * PAGES);
+	}
 
-void SSD1306InitScreen(){
-	
-	
-	SSD1306SendSingleCommand(TURN_OFF_SCREEN);
+	//Init screen structure
+	screen->address = addr;
+
+	//Turn off the screen 
+	_SSD1306_send_command(screen->address, TURN_OFF_SCREEN);
 	
 	//Clock frequency
-	SSD1306SendSingleCommand(DISPLAY_CLOCK_DIVIDE_RATIO);
-	SSD1306SendSingleCommand(OSCILLATOR_FRQ);
+	_SSD1306_send_command(screen->address, DISPLAY_CLOCK_DIVIDE_RATIO);
+	_SSD1306_send_command(screen->address, OSCILLATOR_FRQ);
 	
 	//Give display size to SSD1306
-	SSD1306SendSingleCommand(MULTIPLEX_RATIO); 
-	SSD1306SendSingleCommand(DISPLAY_HEIGHT); //Display height from 0 
+	_SSD1306_send_command(screen->address, MULTIPLEX_RATIO); 
+	_SSD1306_send_command(screen->address, DISPLAY_HEIGHT); //Display height from 0 
 	
 	//Set display offset 0
-	SSD1306SendSingleCommand(SET_DISPLAY_OFFSET); 
-	SSD1306SendSingleCommand(0x00); 
+	_SSD1306_send_command(screen->address, SET_DISPLAY_OFFSET); 
+	_SSD1306_send_command(screen->address, 0x00); 
 	
 	//Set addressing mode 
-	SSD1306SendSingleCommand(HORIZONTAL_ADDRESSING_MODE);
-	
-	
-	screen_data = (char **)malloc(sizeof(char *) * COLUMNS);
-	for(char i = 0; i < COLUMNS ; i++){
-		screen_data[i] = (char *)malloc(sizeof(char) * PAGES);
-	}
+	_SSD1306_send_command(screen->address, HORIZONTAL_ADDRESSING_MODE);
+		
 	//Blank screen
-	SSD1306ClearScreen();
+	SSD1306_clear_screen(screen);
 	
-	SSD1306TurnOnChargePump();
-	SSD1306SendSingleCommand(TURN_ON_SCREEN);
+	//Power on the screen
+	SSD1306_turn_on_charge_pump(screen);
+	_SSD1306_send_command(screen->address, TURN_ON_SCREEN);
 	
 }
-void SSD1306CloseScreen(){
+void SSD1306_destroy(SSD1306 *screen){
 	
-	char i = 0;
-	for(i = 0; i < COLUMNS ; i++){
-		free(screen_data[i]);
+	//Desallocate memory for the screen buffer
+	for(char i = 0; i < COLUMNS ; i++){
+		free(screen->screenBuffer[i]);
 	}
-	free(screen_data[i]);
+	free(screen->screenBuffer);
 	
-	SSD1306SendSingleCommand(TURN_OFF_SCREEN);
-	SSD1306TurnOffChargePump();
+	//Turn off the screen
+	_SSD1306_send_command(screen->address, TURN_OFF_SCREEN);
+	SSD1306_turn_off_charge_pump(screen);
 }
-void SSD1306SendSingleCommand(char command){
+
+/******************************** hidden function ***************************************/
+void _SSD1306_send_command(unsigned char addr, char command){
 	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
+	bcm2835_i2c_setSlaveAddress(addr);
 	char i2c_command[2] = {0x00, command};
 	bcm2835_i2c_write(i2c_command, 2);
 	
 }
-void SSD1306SendSingleData(char data){
+void _SSD1306_send_data(unsigned char addr, char data){
 	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
+	bcm2835_i2c_setSlaveAddress(addr);
 	char i2c_command[2] = {0x40, data};
 	bcm2835_i2c_write(i2c_command, 2);
 	
 }
-void SSD1306TurnOnChargePump(){
+void _SSD1306_set_page(unsigned char addr, char page){
 	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
-	char i2c_command[3] = {0x00, CHARGE_PUMP_SETTINGS, ENABLE_CHARGE_PUMP};
-	bcm2835_i2c_write(i2c_command, 3);
-	
-}
-void SSD1306TurnOffChargePump(){
-	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
-	char i2c_command[3] = {0x00, CHARGE_PUMP_SETTINGS, DISABLE_CHARGE_PUMP};
-	bcm2835_i2c_write(i2c_command, 3);
-	
-}
-void SSD1306SetPage(char page){
-	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
+	bcm2835_i2c_setSlaveAddress(addr);
 	char i2c_command[4] = {0x00, SET_PAGE, page, PAGES-1};
 	bcm2835_i2c_write(i2c_command, 4);
 	
 }
-void SSD1306SetColumn(char column){
+void _SSD1306_set_column(unsigned char addr, char column){
 	
-	bcm2835_i2c_setSlaveAddress(SSD1306_ADDR);
+	bcm2835_i2c_setSlaveAddress(addr);
 	char i2c_command[4] = {0x00, SET_COLUMN, column, COLUMNS-1};
 	bcm2835_i2c_write(i2c_command, 4);
 	
 }
-void SSD1306ClearScreen(){
+char _SSD1306_get_pixelmask(char y){
+	
+	return pow(2, (2*(y%(SCREEN_HEIGHT/PAGES))));
+}
+char _SSD1306_get_page(char y){
+	
+	return y/(SCREEN_HEIGHT/PAGES);
+}
+/******************************** service function ***************************************/
+void SSD1306_turn_on_charge_pump(SSD1306 *screen){
+	
+	bcm2835_i2c_setSlaveAddress(screen->address);
+	char i2c_command[3] = {0x00, CHARGE_PUMP_SETTINGS, ENABLE_CHARGE_PUMP};
+	bcm2835_i2c_write(i2c_command, 3);
+	
+}
+void SSD1306_turn_off_charge_pump(SSD1306 *screen){
+	
+	bcm2835_i2c_setSlaveAddress(screen->address);
+	char i2c_command[3] = {0x00, CHARGE_PUMP_SETTINGS, DISABLE_CHARGE_PUMP};
+	bcm2835_i2c_write(i2c_command, 3);
+	
+}
+/******************************** graphical function ***************************************/
+void SSD1306_clear_screen(SSD1306 *screen){
 	
 	for(char i = 0;  i < PAGES ; i++){
 		for(char j = 0;  j < COLUMNS ; j++){
-			SSD1306SetPage(i);
-			SSD1306SetColumn(j);
-			screen_data[j][i] = 0x00;
-			SSD1306SendSingleData(0x00);
+			screen->screenBuffer[j][i] = 0x00;
 		}
 	}
 }
-void SSD1306DrawSinglePixel(char x, char y){
+void SSD1306_draw_pixel(SSD1306 *screen, char x, char y){
 	
+	//Check if the coordinate are correct
 	if(x >= SCREEN_WIDTH || y >=SCREEN_HEIGHT){
+		fprintf(stderr, "Error : invalid screen coordinate");
 		exit(0);
 	}
-	char page = y/(SCREEN_HEIGHT/PAGES);
-	char pixelmask = y%(SCREEN_HEIGHT/PAGES);
-	pixelmask = pow(2, (2*pixelmask));
 	
-	SSD1306SetPage(page);
-	SSD1306SetColumn(x);
-	screen_data[x][page] |= pixelmask;
-	
-	SSD1306SendSingleData(screen_data[x][page]);
+	screen->screenBuffer[x][_SSD1306_get_page(y)] |= _SSD1306_get_pixelmask(y);
 	
 }
-void SSD1306BlitScreen(){
+void SSD1306_erease_pixel(SSD1306 *screen, char x, char y){
 	
+	//Check if the coordinate are correct
+	if(x >= SCREEN_WIDTH || y >=SCREEN_HEIGHT){
+		fprintf(stderr, "Error : invalid screen coordinate");
+		exit(0);
+	}
+	
+	screen->screenBuffer[x][_SSD1306_get_page(y)] &= ~_SSD1306_get_pixelmask(y);
+	
+}
+void SSD1306_blit(SSD1306 *screen){
+	
+	//Copy the screenBuffer into the screen VRAM
 	for(char i = 0;  i < PAGES ; i++){
 		for(char j = 0;  j < COLUMNS ; j++){
-			SSD1306SetPage(i);
-			SSD1306SetColumn(j);
-			SSD1306SendSingleData(screen_data[j][i]);
+			_SSD1306_set_page(screen->address, i);
+			_SSD1306_set_column(screen->address, j);
+			_SSD1306_send_data(screen->address, screen->screenBuffer[j][i]);
 		}
 	}
 	
-}
-
-char **getScreenBuff(){
-	return screen_data;
 }

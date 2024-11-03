@@ -1,5 +1,5 @@
-uwunas : main.o nas.o clock.o http.o diskmanager.o ssd1306.o ssd1306_text.o
-	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o ssd1306.o ssd1306_text.o -lbcm2835 -lblkid -lm -lpng
+uwunas : main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o
+	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o -lbcm2835 -lblkid -lm -lpng
 
 main.o : src/main.c 
 	gcc -c src/main.c -o main.o -lbcm2835 -lblkid -lm 
@@ -16,9 +16,9 @@ http.o : src/http.c
 diskmanager.o : src/diskmanager.c 
 	gcc -c src/diskmanager.c -o diskmanager.o -lbcm2835 -lblkid -lm 
 	
-ssd1306.o : src/ssd1306.c 
-	gcc -c src/ssd1306.c -o ssd1306.o -lbcm2835 -lm 
+SSD1306.o : src/SSD1306.c 
+	gcc -c src/SSD1306.c -o SSD1306.o -lbcm2835 -lm 
 
-ssd1306_text.o : src/ssd1306_text.c 
-	gcc -c src/ssd1306_text.c -o ssd1306_text.o -lbcm2835 -lm -lpng
+SSD1306_writer.o : src/SSD1306_writer.c 
+	gcc -c src/SSD1306_writer.c -o SSD1306_writer.o -lbcm2835 -lm -lpng
 
