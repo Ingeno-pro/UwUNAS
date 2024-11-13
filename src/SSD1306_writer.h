@@ -15,9 +15,11 @@
 
 #define MEDIUM_CHAR_HEIGHT 16
 #define MEDIUM_CHAR_WIDTH 8
+#define MEDIUM_CHAR_SHEET_PATH "res/img/mediumChar.png"
 
 #define LARGE_CHAR_HEIGHT 24
 #define LARGE_CHAR_WIDTH 12
+#define LARGE_CHAR_SHEET_PATH "res/img/largeChar.png"
 
 
 #define LITTLE 0
@@ -65,6 +67,5 @@ void _SSD1306Writer_free_large_char_table(SSD1306Writer *sw);
 
 void SSD1306Writer_draw_small_char(SSD1306Writer *sw, char id, char x, char y);
 void SSD1306Writer_draw_small_string(SSD1306Writer *sw, char x, char y, char *str);
-
 
 #endif

@@ -63,15 +63,14 @@ void _SSD1306Writer_alloc_large_char_table(SSD1306Writer *sw){
 	_SSD1306Writer_alloc_char_table(&sw->lct, LARGE_CHAR_WIDTH, LARGE_CHAR_HEIGHT);
 	
 }
-void _read_char_sheet(png_byte **row_pointers, char **sheet, int width, int height){
+void _SSD1306Writer_read_char_sheet(png_byte **row_pointers, char **sheet, int width, int height){
 
 	//Store the image 
 	for(int y = 0; y < height; y++){
  		for(int x = 0; x < width; x++){
-			if(!row_pointers[y][x*3 + 0] && !row_pointers[y][x*3 + 1] && !row_pointers[y][x*3 + 2]){
-				sheet[y][x] = 1;
-			}else{
-				sheet[y][x] = 0;
+			for(int index = 0; index < 3; index++){
+				sheet[y][x] = !row_pointers[y][x*3 + index]; //Check if all the rgb components are black
+				if(!sheet) break;
 			}
 		}
 	}
@@ -114,7 +113,7 @@ void _SSD1306Writer_load_small_char_table(SSD1306Writer *sw){
 	}
 
 	png_read_image(png, row_pointers);
-	_read_char_sheet(row_pointers, sheet, width, height);
+	_SSD1306Writer_read_char_sheet(row_pointers, sheet, width, height);
 	
 	//Store the char into the table
 	for(int id = 0; id < N_ASCII_CHAR; id++){

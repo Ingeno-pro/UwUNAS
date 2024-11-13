@@ -1,5 +1,5 @@
 #include "nas.h"
-#include "http.h"
+
 int initNAS(void){
 	
 	fprintf(stderr, "CHECK DISK CFG UWU\n");
@@ -17,42 +17,60 @@ int initNAS(void){
 	fclose(diskCfg);
 
 }
-int manageRequest(int clientSocket, char *request, int request_size){
+void UwUNAS_manage_file_request(HTTPRequest *hp){
+
 	
-	char *token;
-	char method[REQUEST_METHOD_SIZE] = {0};
-	token = strtok(request, " ");
-	strcpy(method, token);
 	
-	char url[MAX_URL_SIZE] = {0};
-	strcpy(url, "page");
-	token = strtok(NULL, " ");
-	(!strcmp(token, "/")) ? strcat(url, "/home.html") : strcat(url, token);
+}
+void UwUNAS_manage_http_web_request(HTTPRequest *hp, SuperString *url){
 	
-	FILE *page;
-	long pageSize;
-	char *html_content;
-	  
-	if(!strcmp(method, "GET")){
-		page = fopen(url, "r");
-		
-		if(page == NULL){
-			fprintf(stderr, "UWU introuvable : %s", url);
-		}else{
-			fseek(page, 0, SEEK_END);
-			pageSize = ftell(page);
-			fseek(page, 0, SEEK_SET);
-		
-			if(pageSize < BUFFER_SIZE - HEADER_SIZE){
-				html_content = malloc(pageSize + 1);
-				fread(html_content, pageSize, 1, page);
-				sendHTTPResponse(clientSocket, html_content, pageSize);
-				fclose(page);
-			}
-		}
-				
-	}else if(!strcmp(method, "POST")){
+	if(!strcmp(url->str, "/")) url->sprint(url, "page/home.html");
+	if(!strcmp(url->str, "/favicon.ico")) url->sprint(url, "page/favicon.ico");
 	
+	if(url->str[0] == '/') SuperString_delete_char_from_index(url, 0);
+	
+	if(!strcmp(get_file_extension(url->str), "ico")){
+		HTTPFaviconRequest_init(hp);
+	}else if(!strcmp(get_file_extension(url->str), "html")){
+		HTTPPageRequest_init(hp);
+	}else if(!strcmp(get_file_extension(url->str), "css")){
+		HTTPStyleSheetRequest_init(hp);
+	}else if(!strcmp(get_file_extension(url->str), "js")){
+		HTTPPageRequest_init(hp);
+	}else{
+		//something here
+		HTTPPageRequest_init(hp);
 	}
 	
+}
+void _UwUNAS_get_file_content(const char *url, SuperString *content_buffer){
+	SuperFile file = SuperFile_open(url);
+	content_buffer->appendSS(content_buffer, &(file.content));
+}
+char *get_file_extension(const char *filename){
+	const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
+int manageRequest(int clientSocket, SuperString *request){
+	
+	//Process the request
+	SuperString method = SuperString_init(), url = SuperString_init();
+	
+	int index = request->limit(request, &method, ' ');
+	index = request->select_and_limit(request, &url, index+1, ' ');
+
+	//Create the answer
+	HTTPRequest hp;
+	UwUNAS_manage_http_web_request(&hp, &url);
+	_UwUNAS_get_file_content(url.str, &(hp.content));
+	hp.getHeader(&hp);
+	  
+	//Send the answer
+	if(!strcmp(method.str, "GET")){
+		HTTPServer_send(clientSocket, &hp);
+	}else if(!strcmp(method.str, "POST")){
+	
+	}
+	HTTPRequest_destroy(&hp);
 }
