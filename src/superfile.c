@@ -20,7 +20,6 @@ void SuperFile_close(SuperFile *sf){
 	SuperString_destroy(&(sf->fpath));
 	SuperString_destroy(&(sf->content));
 }
-
 void _SuperFile_read(SuperFile *sf){
 	
 	char c;
@@ -31,7 +30,6 @@ void _SuperFile_read(SuperFile *sf){
 	
 	for(int i = 0; i < sf->fsize; i++){
 		c = fgetc(sf->f);
-		sf->content.appendc(&(sf->content), c);
+		sf->content.appendb(&(sf->content), c);
 	}
-	
 }

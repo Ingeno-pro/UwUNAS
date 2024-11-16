@@ -10,6 +10,7 @@ SuperString SuperString_init(){
 	sstr.append = &SuperString_append;
 	sstr.appendSS = &SuperString_appendSS;
 	sstr.appendc = &SuperString_appendc;
+	sstr.appendb = &SuperString_appendb;
 	sstr.limit = &SuperString_limit;
 	sstr.select_and_limit = &SuperString_select_and_limit;
 	sstr.cmp = &SuperString_compare;
@@ -25,36 +26,46 @@ void SuperString_sprint(SuperString *sstr, const char *str){
 		free(sstr->str);
 	}
 
-	sstr->size = strlen(str) + 1;
+	sstr->size = strlen(str);
 	sstr->str = (char *)malloc(sstr->size);
 
-	for(int i = 0 ; i < sstr->size - 1; i++){
+	for(int i = 0 ; i < sstr->size; i++){
 		sstr->str[i] = str[i];
 	}
 
-	sstr->str[sstr->size - 1] = '\0';
+	if(sstr->str[sstr->size - 1] != '\0'){
+		sstr->size = sizeof(char) + sstr->size;
+		sstr->str = realloc(sstr->str, sstr->size);
+		sstr->str[sstr->size - 1] = '\0';
+	}
 	
 	
 }
-void SuperString_append(SuperString *sstr, const char *str){
+void SuperString_append(SuperString *sstr, const char *str) {
 	
-	int prev_size = sstr->size;
-	
-	if(sstr->str == NULL){
-		sstr->size = strlen(str) + 1;
-		sstr->str = (char *)malloc(sstr->size);
-	}else{
-		sstr->size = strlen(str) + sstr->size;
-		char *buff = realloc(sstr->str, sstr->size);
-		sstr->str = buff;
-	}
-	
-	for(int i = 0; i < strlen(str); i++){
-		sstr->str[(prev_size) ? prev_size + i - 1 : i] = str[i];
-	}
-	sstr->str[sstr->size - 1] = '\0';
-	
+    int prev_size = sstr->size;
+
+    if (sstr->str == NULL) {
+        sstr->size = strlen(str) + 1;
+        sstr->str = (char *)malloc(sstr->size);
+        if (sstr->str == NULL) {
+            fprintf(stderr, "Memory allocation failed\n");
+            return;
+        }
+        strcpy(sstr->str, str); 
+    } else {
+        sstr->size += strlen(str); 
+        char *new_str = (char *)realloc(sstr->str, sstr->size + 1);
+        if (new_str == NULL) {
+            fprintf(stderr, "Memory allocation failed\n");
+            return;
+        }
+        sstr->str = new_str; 
+        strcat(sstr->str, str);
+    }
+
 }
+
 void SuperString_appendSS(SuperString *dsstr, SuperString *ssstr){
 	
 	int prev_size = dsstr->size;
@@ -63,11 +74,10 @@ void SuperString_appendSS(SuperString *dsstr, SuperString *ssstr){
 		dsstr->size = ssstr->size;
 		dsstr->str = (char *)malloc(dsstr->size);
 	}else{
-		dsstr->size = ssstr->size + dsstr->size;
+		dsstr->size = ssstr->size + dsstr->size - 1;
 		char *buff = realloc(dsstr->str, dsstr->size);
 		dsstr->str = buff;
 	}
-	
 	for(int i = 0; i < ssstr->size; i++){
 		dsstr->str[(prev_size) ? prev_size + i - 1 : i] = ssstr->str[i];
 	}
@@ -77,15 +87,24 @@ void SuperString_appendc(SuperString *sstr, const char c){
 	int prev_size = sstr->size;
 	
 	if(sstr->str == NULL){
-		sstr->size = 2;
+		sstr->size = 1;
 		sstr->str = (char *)malloc(sstr->size);
-	}else{
-		sstr->size = sizeof(char) + sstr->size;
-		char *buff = realloc(sstr->str, sstr->size);
-		sstr->str = buff;
 	}
-	sstr->str[sstr->size - 2] = c;
-	sstr->str[sstr->size - 1] = '\0';
+	
+	sstr->str[sstr->size - 1] = c;
+	
+	if(c != '\0'){
+		sstr->size = sizeof(char) + sstr->size;
+		sstr->str = realloc(sstr->str, sstr->size);
+		sstr->str[sstr->size - 1] = '\0';
+	}
+}
+void SuperString_appendb(SuperString *sstr, const char c){
+	
+	sstr->size = sizeof(char) + sstr->size;
+	sstr->str = realloc(sstr->str, sstr->size);
+	
+	sstr->str[sstr->size - 1] = c;
 	
 }
 int SuperString_limit(SuperString *ssstr, SuperString *dstr, const char c){

@@ -125,6 +125,7 @@ void _HTTPRequest_get_generic_header(SuperString *header){
 	sprintf(buff, "HTTP/1.0 200 OK\n%s\nServer: LegoUWUnaS\n", date);
 	
 	header->sprint(header, buff);
+
 }
 void _HTTPRequest_write_content_information(int size, SuperString *header){
 	
@@ -135,7 +136,7 @@ void _HTTPRequest_write_content_information(int size, SuperString *header){
 	time_t timestamp = time(NULL);
 	strftime(expire, sizeof(expire), "Expires: %a, %d %b %Y %X GMT\n", localtime(&timestamp)); 
 	strftime(last_modified, sizeof(last_modified), "Last-modified: %a, %d %b %Y %X GMT\n", localtime(&timestamp));
-	
+
 	sprintf(buff, "Content-Length: %d\n%s%s", size, expire, last_modified);
 	header->append(header, buff);
 	
@@ -143,41 +144,40 @@ void _HTTPRequest_write_content_information(int size, SuperString *header){
 void HTTPPageRequest_get_header(HTTPRequest *hr){
 	
 	_HTTPRequest_get_generic_header(&(hr->http_header));
-	hr->http_header.append(&(hr->http_header), "Content-Type: text/html\n"); 
+	hr->http_header.append(&(hr->http_header), "Content-Type: text/html\n\0"); 
 	hr->size = hr->content.size;
 	_HTTPRequest_write_content_information(hr->size, &(hr->http_header));
-
-	hr->http_header.append(&(hr->http_header), "\n\n");
+	hr->http_header.append(&(hr->http_header), "\n");
 
 }
 void HTTPStyleSheetRequest_get_header(HTTPRequest *hr){
 		
 	_HTTPRequest_get_generic_header(&(hr->http_header));
-	hr->http_header.append(&(hr->http_header), "Content-Type: text/css\n"); 
+	hr->http_header.append(&(hr->http_header), "Content-Type: text/css\n\0"); 
 	hr->size = hr->content.size;
 	_HTTPRequest_write_content_information(hr->size, &(hr->http_header));
 	
-	hr->http_header.append(&(hr->http_header), "\n\n");
+	hr->http_header.append(&(hr->http_header), "\n");
 	
 }
 void HTTPFaviconRequest_get_header(HTTPRequest *hr){
 		
 	_HTTPRequest_get_generic_header(&(hr->http_header));
-	hr->http_header.append(&(hr->http_header), "Content-Type: image/x-icon\n"); 
+	hr->http_header.append(&(hr->http_header), "Content-Type: image/png\n\0"); 
 	hr->size = hr->content.size;
 	_HTTPRequest_write_content_information(hr->size, &(hr->http_header));
 	
-	hr->http_header.append(&(hr->http_header), "\n\n");
+	hr->http_header.append(&(hr->http_header), "\n");
 	
 }
 void HTTPImageRequest_get_header(HTTPRequest *hr){
 		
 	_HTTPRequest_get_generic_header(&(hr->http_header));
-	hr->http_header.append(&(hr->http_header), "Content-Type: image/png\n"); 
+	hr->http_header.append(&(hr->http_header), "Content-Type: image/png\n\0"); 
 	hr->size = hr->content.size;
 	_HTTPRequest_write_content_information(hr->size, &(hr->http_header));
 	
-	hr->http_header.append(&(hr->http_header), "\n\n");
+	hr->http_header.append(&(hr->http_header), "\n");
 	
 }
 void HTTPServer_send(int clientSocket, HTTPRequest *hr){

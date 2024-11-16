@@ -1,4 +1,26 @@
 .home
 {
-	background-color:blue;
+	background-color:#F5F5F5;
+	margin:0;
 }
+.side-bar
+{
+	z-index: 3;
+	height:100%;
+	width:16%;
+	position:fixed;
+	background-color:#F0F0F0;
+}
+.search-bar
+{
+	z-index: 2;
+	height:10%;
+	width:100%;
+	position:fixed;
+	background-color:#F0F0F0;
+	
+	display:flex;
+	justify-content:center;
+	
+}
+	
