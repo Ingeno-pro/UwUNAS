@@ -9,8 +9,11 @@ SuperFile SuperFile_open(char *path){
 	sf.content = SuperString_init();
 	
 	sf.f = fopen(path, "rb");
-	_SuperFile_read(&sf);
-	fclose(sf.f);
+	
+	if(sf.f != NULL){ 
+		_SuperFile_read(&sf);
+		fclose(sf.f);
+	}
 	
 	return sf;
 	
