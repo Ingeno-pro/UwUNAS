@@ -26,6 +26,7 @@ void UwUNAS_manage_http_web_request(HTTPRequest *hp, SuperString *url){
 	
 	if(!strcmp(url->str, "/")) url->sprint(url, "page/home.html");
 	if(!strcmp(url->str, "/favicon.ico")) url->sprint(url, "page/favicon.ico");
+	if(!strcmp(get_file_extension(url->str), ""))
 	
 	if(url->str[0] == '/') SuperString_delete_char_from_index(url, 0);
 	

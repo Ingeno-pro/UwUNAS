@@ -23,4 +23,9 @@
 	justify-content:center;
 	
 }
+.logo
+{
 	
+	height: 10%;
+	aspect-ratio: 1/1;
+}
