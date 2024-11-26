@@ -1,5 +1,7 @@
-uwunas : main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o superstring.o superfile.o
-	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o superstring.o superfile.o -lbcm2835 -lblkid -lm -lpng -g
+LOCAL_LIB_DIR = llib
+
+uwunas : main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o superstring.o superfile.o uglydictionary.o
+	gcc -o uwunas main.o nas.o clock.o http.o diskmanager.o SSD1306.o SSD1306_writer.o superstring.o superfile.o uglydictionary.o -lbcm2835 -lblkid -lm -lpng -g
 
 main.o : src/main.c 
 	gcc -c src/main.c -o main.o -lbcm2835 -lblkid -lm -g
@@ -28,3 +30,5 @@ superstring.o : src/superstring.c
 superfile.o : src/superfile.c 
 	gcc -c src/superfile.c -o superfile.o -lbcm2835 -lm -lpng -g
 
+uglydictionary.o : src/uglydictionary.c 
+	gcc -c src/uglydictionary.c -o uglydictionary.o -lbcm2835 -lm -lpng -g

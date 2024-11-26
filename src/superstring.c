@@ -20,27 +20,27 @@ SuperString SuperString_init(){
 void SuperString_destroy(SuperString *ss){
 	free(ss->str);
 }
-void SuperString_sprint(SuperString *sstr, const char *str){
+void SuperString_sprint(SuperString *sstr, const char *str) {
 	
-	if(sstr->str != NULL){
-		free(sstr->str);
-	}
+    if (!str) return;
 
-	sstr->size = strlen(str);
-	sstr->str = (char *)malloc(sstr->size);
+    if (sstr->str != NULL) {
+        free(sstr->str);
+    }
 
-	for(int i = 0 ; i < sstr->size; i++){
-		sstr->str[i] = str[i];
-	}
+    sstr->size = strlen(str) + 1;
 
-	if(sstr->str[sstr->size - 1] != '\0'){
-		sstr->size = sizeof(char) + sstr->size;
-		sstr->str = realloc(sstr->str, sstr->size);
-		sstr->str[sstr->size - 1] = '\0';
-	}
+    sstr->str = (char *)malloc(sstr->size);
 	
-	
+    if (sstr->str == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+        sstr->size = 0;
+        return;
+    }
+
+    strcpy(sstr->str, str);
 }
+
 void SuperString_append(SuperString *sstr, const char *str) {
 	
     int prev_size = sstr->size;
